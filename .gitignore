@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# игнорирую архив с данными для проверки
+Docs/02_homework-12995-fb7660.zip
