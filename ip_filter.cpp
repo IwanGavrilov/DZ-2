@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <fstream>
 
+#include "lib.h"
+
 // ("",  '.') -> [""]
 // ("11", '.') -> ["11"]
 // ("..", '.') -> ["", "", ""]

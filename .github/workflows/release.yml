@@ -3,8 +3,8 @@ name: 'C++ CI'
 on:
   push:
     branches:
-      - main
-
+      - master
+      - feature/github_actions
 jobs:
   build:
     runs-on: ubuntu-latest
