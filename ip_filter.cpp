@@ -215,7 +215,6 @@ int main()
             return 0;
         }
 
-        std::cout << "--------sort--------" << std::endl;
         // TODO reverse lexicographically sort
         std::vector<std::vector<std::string>> ip_pool_sort = sort_ip_pool(ip_pool, 2);
         if (!ip_pool_sort.empty()) {
@@ -230,7 +229,6 @@ int main()
         // 1.29.168.152
         // 1.1.234.8
 
-        std::cout << "--------first--------" << std::endl;
         // TODO filter by first byte and output
         std::vector<std::vector<std::string>> filtered_ip_pool;
         filtered_ip_pool = filter(ip_pool, 1);
@@ -244,7 +242,6 @@ int main()
         // 1.29.168.152
         // 1.1.234.8
 
-        std::cout << "--------first and second--------" << std::endl;
         // TODO filter by first and second bytes and output
         filtered_ip_pool = filter(ip_pool, 46, 70);
         if (!filtered_ip_pool.empty()) {
@@ -256,7 +253,7 @@ int main()
         // 46.70.147.26
         // 46.70.113.73
         // 46.70.29.76
-        std::cout << "--------any--------" << std::endl;
+        
         // TODO filter by any byte and output
         filtered_ip_pool = filterany(ip_pool, 46);
         if (!filtered_ip_pool.empty()) {
