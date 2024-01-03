@@ -269,9 +269,10 @@ int main()
         std::string s_file_path = "";
         std::getline(std::cin, s_file_path);
         // если задан файл с данными, то читаем его
-        // если не казан, то читаем стандартный ввод. окончание ввода фраза "Ok" или "ok"
+        // если не указан, то читаем стандартный ввод. окончание ввода фраза "Ok" или "ok"
         if (s_file_path != "") {
-            std::ifstream io(s_file_path);
+            std::ifstream io;//(s_file_path);
+            io.open(s_file_path);
             if (io.is_open()) {
                 std::string s_line;
                 // читаем файл построчно
@@ -300,14 +301,11 @@ int main()
             return 0;
         }
 
-        print_ip(ip_pool);
         // TODO reverse lexicographically sort
-        /*
-        std::vector<std::vector<std::string>> ip_pool_sort = sort_ip_pool(ip_pool, 2);
+        std::vector<std::array <int, 4> > ip_pool_sort = sort_ip_pool(ip_pool, 2);
         if (!ip_pool_sort.empty()) {
             print_ip(ip_pool_sort);
         }
-        */
 
         // 222.173.235.246
         // 222.130.177.64
