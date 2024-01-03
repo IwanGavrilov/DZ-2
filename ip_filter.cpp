@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+#include <array>
 
 #include "lib.h"
 
@@ -34,10 +35,64 @@ std::vector<std::string> split(const std::string &str, char d)
 }
 
 /*
+разбиваем строку на октеты и возвращаем array<int, 4>
+*/
+std::array<int, 4> conver_ip_adress(const std::string s_ip_adress)
+{
+    std::array<int, 4> ip_adress = {-1, -1, -1, -1};
+    if (s_ip_adress.empty()) {
+        return ip_adress;
+    }
+    int idx = 0;
+    // добавляем массив октетов.
+    for (std::string iter : split(s_ip_adress, '.')) {
+        ip_adress[idx] = std::stoi(iter);
+        idx++;
+    }
+
+    return ip_adress;
+}
+
+/*
 функции компаратор
 compare_descending - сортирует по убыванию
 compare_ascending - сортирует по возрастанию
 */
+int compare_descending_int(std::array<int, 4> a1, std::array<int, 4> a2) {
+    int out_value = 0;
+    if (a1[0] == a2[0]) {
+        if (a1[1] == a2[1]) {
+            if (a1[2] == a2[2]) {
+                if (a1[3] == a2[3]) out_value = 0;
+                if (a1[3] > a2[3]) out_value = 1;
+            }
+            if (a1[2] > a2[2]) out_value = 1;
+        }
+        if (a1[1] > a2[1]) out_value = 1;
+        //out_value = 0;
+    }
+
+    if (a1[0] > a2[0]) out_value = 1;
+    return out_value;
+}
+int compare_ascending_int(std::array<int, 4> a1, std::array<int, 4> a2) {
+    int out_value = 0;
+    if (a1[0] == a2[0]) {
+        if (a1[1] == a2[1]) {
+            if (a1[2] == a2[2]) {
+                if (a1[3] == a2[3]) out_value = 0;
+                if (a1[3] < a2[3]) out_value = 1;
+            }
+            if (a1[2] < a2[2]) out_value = 1;
+        }
+        if (a1[1] < a2[1]) out_value = 1;
+        //out_value = 0;
+    }
+
+    if (a1[0] < a2[0]) out_value = 1;
+    return out_value;
+}
+
 int compare_descending (std::vector<std::string> v1, std::vector<std::string> v2) {
     int out_value = 0;
     if (std::stoi(v1.at(0)) == std::stoi(v2.at(0))) {
@@ -77,6 +132,33 @@ int compare_ascending (std::vector<std::string> v1, std::vector<std::string> v2)
 ip_pool - список IP-адресов
 order - порядок сортировки (1 - по возрастанию, 2 - по убыванию)
 */
+std::vector<std::array<int, 4>> sort_ip_pool(const std::vector<std::array<int, 4>> &ip_pool, int order){
+    std::vector<std::array<int, 4>> out_ip_pool = ip_pool;
+    try
+    {
+        switch (order)
+        {
+        case 1:
+            // сортируем по возрастанию
+            std::sort(out_ip_pool.begin(), out_ip_pool.end(), compare_ascending_int);
+            break;
+        case 2:
+            // сортируем по убыванию
+            std::sort(out_ip_pool.begin(), out_ip_pool.end(), compare_descending_int);
+            break;
+        default:
+            // если задан неверный флаг сортировки (order <> 1 или 2), выводим данные без изменения
+            break;
+        }
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+
+    return out_ip_pool;
+}
+
 std::vector<std::vector<std::string>> sort_ip_pool(const std::vector<std::vector<std::string>> &ip_pool, int order){
     std::vector<std::vector<std::string>> out_ip_pool = ip_pool;
     try
@@ -108,7 +190,7 @@ std::vector<std::vector<std::string>> sort_ip_pool(const std::vector<std::vector
 печать IP-адреса
 ip_pool - ссылка на пул IP-адресов
 */
-void print_ip(const std::vector<std::vector<std::string>> & ip_pool){
+void print_ip(const std::vector<std::array<int, 4>> & ip_pool){
     for (auto iter_ip = ip_pool.cbegin(); iter_ip != ip_pool.cend(); ++iter_ip) {
         for (auto part = iter_ip->cbegin(); part != iter_ip->cend(); ++part){
             if (part != iter_ip->cbegin()){
@@ -125,13 +207,13 @@ void print_ip(const std::vector<std::vector<std::string>> & ip_pool){
 ip_pool - список IP-адресов
 nOktet - первый октет IP-адреса
 */
-std::vector<std::vector<std::string>> filter(std::vector<std::vector<std::string> > ip_pool, int nOktet) {
-    std::vector<std::vector<std::string>> out_ip_pool;
+std::vector<std::array<int, 4>> filter(std::vector<std::array<int, 4> > ip_pool, int nOktet) {
+    std::vector<std::array<int, 4>> out_ip_pool;
     if (nOktet < 0) {
         return out_ip_pool;
     }
     for (auto iter_ip = ip_pool.cbegin(); iter_ip != ip_pool.cend(); ++iter_ip){
-        if (std::stoi(iter_ip->at(0)) == nOktet) {
+        if (iter_ip->at(0) == nOktet) {
             out_ip_pool.push_back(*iter_ip);
         };
     }
@@ -144,13 +226,13 @@ ip_pool - список IP-адресов
 nFirstOktet - первый октет IP-адреса
 nSecondOktet - второй октет IP-адреса
 */
-std::vector<std::vector<std::string>> filter(std::vector<std::vector<std::string> > ip_pool, int nFirstOktet, int nSecondOktet) {
-    std::vector<std::vector<std::string>> out_ip_pool;
+std::vector<std::array<int, 4>> filter(std::vector<std::array<int, 4> > ip_pool, int nFirstOktet, int nSecondOktet) {
+    std::vector<std::array<int, 4>> out_ip_pool;
     if (nFirstOktet < 0 || nSecondOktet < 0) {
         return out_ip_pool;;
     }
     for (auto iter_ip = ip_pool.cbegin(); iter_ip != ip_pool.cend(); ++iter_ip){
-        if (std::stoi(iter_ip->at(0)) == nFirstOktet && std::stoi(iter_ip->at(1)) == nSecondOktet) {
+        if (iter_ip->at(0) == nFirstOktet && iter_ip->at(1) == nSecondOktet) {
             out_ip_pool.push_back(*iter_ip);
         };
     }
@@ -162,25 +244,27 @@ std::vector<std::vector<std::string>> filter(std::vector<std::vector<std::string
 ip_pool - список IP-адресов
 nOktet - любой октет IP-адреса
 */
-std::vector<std::vector<std::string>> filterany(std::vector<std::vector<std::string> > ip_pool, int nOktet) {
-    std::vector<std::vector<std::string>> out_ip_pool;
+std::vector<std::array<int, 4>> filterany(std::vector<std::array<int, 4> > ip_pool, int nOktet) {
+    std::vector<std::array<int, 4>> out_ip_pool;
     if (nOktet < 0) {
         return out_ip_pool;
     }
     for (auto iter_ip = ip_pool.cbegin(); iter_ip != ip_pool.cend(); ++iter_ip){
-        if (std::stoi(iter_ip->at(0)) == nOktet || std::stoi(iter_ip->at(1)) == nOktet || 
-            std::stoi(iter_ip->at(2)) == nOktet || std::stoi(iter_ip->at(3)) == nOktet) {
+        if (iter_ip->at(0) == nOktet || iter_ip->at(1) == nOktet || 
+            iter_ip->at(2) == nOktet || iter_ip->at(3) == nOktet) {
             out_ip_pool.push_back(*iter_ip);
         };
     }
     return out_ip_pool;
 }
 //int main(int argc, char const *argv[])
+
 int main()
 {
     try
     {
-        std::vector<std::vector<std::string> > ip_pool;
+        //std::vector<std::vector<std::string> > ip_pool;
+        std::vector< std::array<int, 4> > ip_pool;
         std::cout << "Укажите полный путь к файлу с данными, или нажмите Enter" << std::endl;
         std::string s_file_path = "";
         std::getline(std::cin, s_file_path);
@@ -194,7 +278,8 @@ int main()
                 while(std::getline(io, s_line))
                 {
                     std::vector<std::string> v = split(s_line, '\t');
-                    ip_pool.push_back(split(v.at(0), '.'));
+                    
+                    ip_pool.push_back(conver_ip_adress(v.at(0)));
                 }
                 io.close();
             }
@@ -205,7 +290,7 @@ int main()
             {
                 if (line == "ok" || line == "Ok" || line == "OK") { break; }    // все данные введены. выходим из цикла
                 std::vector<std::string> v = split(line, '\t');
-                ip_pool.push_back(split(v.at(0), '.'));
+                ip_pool.push_back(conver_ip_adress(v.at(0)));
             }
         }
 
@@ -215,11 +300,14 @@ int main()
             return 0;
         }
 
+        print_ip(ip_pool);
         // TODO reverse lexicographically sort
+        /*
         std::vector<std::vector<std::string>> ip_pool_sort = sort_ip_pool(ip_pool, 2);
         if (!ip_pool_sort.empty()) {
             print_ip(ip_pool_sort);
         }
+        */
 
         // 222.173.235.246
         // 222.130.177.64
@@ -230,12 +318,13 @@ int main()
         // 1.1.234.8
 
         // TODO filter by first byte and output
-        std::vector<std::vector<std::string>> filtered_ip_pool;
+        std::vector<std::array<int, 4>> filtered_ip_pool;
         filtered_ip_pool = filter(ip_pool, 1);
         if (!filtered_ip_pool.empty()) {
             print_ip(filtered_ip_pool);
         }
         filtered_ip_pool.clear();
+        
         // 1.231.69.33
         // 1.87.203.225
         // 1.70.44.170
@@ -260,7 +349,7 @@ int main()
             print_ip(filtered_ip_pool);
         }
         filtered_ip_pool.clear();
-
+        
         // 186.204.34.46
         // 186.46.222.194
         // 185.46.87.231
